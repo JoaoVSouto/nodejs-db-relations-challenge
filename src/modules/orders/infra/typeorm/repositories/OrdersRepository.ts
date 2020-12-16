@@ -17,7 +17,7 @@ class OrdersRepository implements IOrdersRepository {
       order_products: products.map(product => {
         return {
           quantity: product.quantity,
-          price: Number(product.quantity) * Number(product.price),
+          price: Number(product.price),
           product_id: product.id,
         };
       }),
@@ -30,7 +30,7 @@ class OrdersRepository implements IOrdersRepository {
 
   public async findById(id: string): Promise<Order | undefined> {
     const order = await this.ormRepository.findOne(id, {
-      relations: ['customer', 'orders_products'],
+      relations: ['customer', 'order_products'],
     });
 
     return order;

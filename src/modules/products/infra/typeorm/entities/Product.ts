@@ -6,7 +6,6 @@ import {
   UpdateDateColumn,
   OneToMany,
 } from 'typeorm';
-import { Expose } from 'class-transformer';
 
 import OrdersProducts from '@modules/orders/infra/typeorm/entities/OrdersProducts';
 
@@ -32,11 +31,6 @@ class Product {
 
   @UpdateDateColumn()
   updated_at: Date;
-
-  @Expose({ name: 'price' })
-  getPrice(): string {
-    return Number(this.price).toFixed(2);
-  }
 }
 
 export default Product;
