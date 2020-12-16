@@ -18,7 +18,7 @@ class OrdersRepository implements IOrdersRepository {
         return {
           quantity: product.quantity,
           price: Number(product.quantity) * Number(product.price),
-          product,
+          product_id: product.id,
         };
       }),
     });

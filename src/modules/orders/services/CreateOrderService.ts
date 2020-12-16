@@ -17,6 +17,10 @@ interface IRequest {
   products: IProduct[];
 }
 
+interface IProductsMap {
+  [key: string]: number;
+}
+
 @injectable()
 class CreateOrderService {
   constructor(
@@ -30,7 +34,49 @@ class CreateOrderService {
     private customersRepository: ICustomersRepository,
   ) {}
 
-  public async execute({ customer_id, products }: IRequest): Promise<Order> {}
+  public async execute({ customer_id, products }: IRequest): Promise<Order> {
+    const customer = await this.customersRepository.findById(customer_id);
+
+    if (!customer) {
+      throw new AppError('Customer not found.');
+    }
+
+    const retrievedProducts = await this.productsRepository.findAllById(
+      products,
+    );
+
+    if (products.length !== retrievedProducts.length) {
+      throw new AppError('Invalid product(s).');
+    }
+
+    const productsMap = products.reduce<IProductsMap>((obj, product) => {
+      // eslint-disable-next-line no-param-reassign
+      obj[product.id] = product.quantity;
+
+      return obj;
+    }, {});
+
+    const isInvalidQuantity = retrievedProducts.find(
+      product => product.quantity < productsMap[product.id],
+    );
+
+    if (isInvalidQuantity) {
+      throw new AppError(
+        `Invalid quantity for product ${isInvalidQuantity.id}`,
+      );
+    }
+
+    const updatedProducts = await this.productsRepository.updateQuantity(
+      products,
+    );
+
+    const order = await this.ordersRepository.create({
+      customer,
+      products: updatedProducts,
+    });
+
+    return order;
+  }
 }
 
 export default CreateOrderService;

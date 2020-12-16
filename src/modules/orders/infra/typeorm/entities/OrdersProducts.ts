@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
 } from 'typeorm';
+import { Expose } from 'class-transformer';
 
 import Order from '@modules/orders/infra/typeorm/entities/Order';
 import Product from '@modules/products/infra/typeorm/entities/Product';
@@ -41,6 +42,11 @@ class OrdersProducts {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @Expose({ name: 'price' })
+  getPrice(): string {
+    return Number(this.price).toFixed(2);
+  }
 }
 
 export default OrdersProducts;
